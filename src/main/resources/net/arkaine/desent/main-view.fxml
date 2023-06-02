@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="CENTER" prefHeight="571.0" prefWidth="502.0" spacing="20.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.arkaine.desent.MainController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+   <Label text="Label" />
+   <TextField fx:id="pathTxt" promptText="HelloController.HOME" />
+   <ImageView fx:id="imageView" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+
+    <Label fx:id="welcomeText" />
+    <Button fx:id="desentBtn" onAction="#onHelloButtonClick" text="Desent" />
+    <Button fx:id="loadBtn" onAction="#loadAction" text="load" />
+    <Button fx:id="saveBtn" onAction="#saveAction" text="save" />
+</VBox>
