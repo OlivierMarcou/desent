@@ -116,26 +116,22 @@ public class MainController implements Initializable {
         File file = fileChooser.showOpenDialog(null);
 
         if(file != null){
-            try {
-                imageActuelle = ImageIO.read(file);
-                Canvas canvas = new Canvas();
+            imageActuelle = loadFitsFirstImage(file);
+            Canvas canvas = new Canvas();
 
-                WritableImage wr = getWritableImage(imageActuelle);
-                double[] size = new double[2];
-                if(imageActuelle.getHeight() > (scene.getHeight()-20))
-                    size[1] = (scene.getHeight()-20);
-                else
-                    size[1] = imageActuelle.getHeight();
-                if(imageActuelle.getWidth() > (scene.getWidth()-20))
-                    size[0] = (scene.getWidth()-20);
-                else
-                    size[0] = imageActuelle.getWidth();
-                imageView.setFitHeight(size[1]);
-                imageView.setFitWidth(size[0]);
-                imageView.setImage(wr);
-             } catch (IOException ex) {
-                Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            WritableImage wr = getWritableImage(imageActuelle);
+            double[] size = new double[2];
+            if(imageActuelle.getHeight() > (scene.getHeight()-20))
+                size[1] = (scene.getHeight()-20);
+            else
+                size[1] = imageActuelle.getHeight();
+            if(imageActuelle.getWidth() > (scene.getWidth()-20))
+                size[0] = (scene.getWidth()-20);
+            else
+                size[0] = imageActuelle.getWidth();
+            imageView.setFitHeight(size[1]);
+            imageView.setFitWidth(size[0]);
+            imageView.setImage(wr);
         }
     }
 
@@ -153,11 +149,11 @@ public class MainController implements Initializable {
         return wr;
     }
 
-    private Image loadFitsFirstImage(){
+    private BufferedImage loadFitsFirstImage(File imagePath){
 
         Fits f = null;
         try {
-            f = new Fits("bigimg.fits");
+            f = new Fits(imagePath);
         } catch (FitsException e) {
             throw new RuntimeException(e);
         }
@@ -189,8 +185,16 @@ public class MainController implements Initializable {
         } else {
             System.err.println("Unable to seek to data");
         }
-        BufferedImage buf = FITSBufferedImage.createScaledImages(img);
-        return new Image("0,0,0");
+        BufferedImage one = null;
+        try {
+            BufferedImage[] buf = FITSBufferedImage.createScaledImages((ImageHDU)img);
+            one = buf[1];
+        } catch (FitsException e) {
+            throw new RuntimeException(e);
+        } catch (FITSImage.DataTypeNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+        return one;
     }
 
 
