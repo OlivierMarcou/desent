@@ -11,8 +11,11 @@
     </padding>
    <Label text="Label" />
    <TextField fx:id="pathTxt" promptText="HelloController.HOME" />
-   <ImageView fx:id="imageView" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
-
+    <HBox>
+        <ImageView fx:id="imageViewB" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+        <ImageView fx:id="imageViewV" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+        <ImageView fx:id="imageViewR" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+    </HBox>
     <Label fx:id="welcomeText" />
     <Button fx:id="desentBtn" onAction="#onHelloButtonClick" text="Desent" />
     <Button fx:id="loadBtn" onAction="#loadAction" text="load" />

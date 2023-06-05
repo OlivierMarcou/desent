@@ -4,6 +4,7 @@ module net.arkaine.desent {
     requires java.desktop;
     requires java.logging;
     requires nom.tam.fits;
+    requires javafx.swing;
 
 
     opens net.arkaine.desent to javafx.fxml;
