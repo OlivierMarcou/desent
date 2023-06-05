@@ -10,7 +10,6 @@ import java.io.IOException;
 public class DesentApplication extends Application {
 
 
-
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(DesentApplication.class.getResource("main-view.fxml"));
