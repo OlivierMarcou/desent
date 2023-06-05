@@ -172,7 +172,7 @@ public class MainController implements Initializable {
             PixelWriter pwB = wrs.get("B").getPixelWriter();
             for (int x = 0; x < image.getWidth()-1; x+=2) {
                 for (int y = 0; y < image.getHeight()-1; y+=2) {
-                    pwR.setArgb(x/2, y/2, image.getRGB(x+1, y+1));
+                    pwR.setArgb(x/2, y/2, image.getRGB(x, y));
                     Color c1 = new Color(image.getRGB(x+1, y));
                     int red = c1.getRed();
                     int green = c1.getGreen();
@@ -183,7 +183,7 @@ public class MainController implements Initializable {
                     blue = (c1.getBlue() +  c2.getBlue()) /2;
                     Color finalColor = new Color(red, green,blue);
                     pwV.setArgb(x/2, y/2, finalColor.getRGB());
-                    pwB.setArgb(x/2, y/2, image.getRGB(x, y));
+                    pwB.setArgb(x/2, y/2, image.getRGB(x+2, y+2));
                 }
             }
         }
