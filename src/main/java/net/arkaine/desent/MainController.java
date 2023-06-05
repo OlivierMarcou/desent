@@ -189,7 +189,7 @@ public class MainController implements Initializable {
             ImageIO.write(SwingFXUtils.fromFXImage(wrs.get("V"), null),
                     "png", new File(saveFolder.getAbsolutePath()+File.separatorChar+"g_"+file.getName()+".png"));
             ImageIO.write(SwingFXUtils.fromFXImage(wrs.get("R"), null),
-                    "png", new File(saveFolder.getAbsolutePath()+File.separatorChar+"r_"+file.getName()+"png"));
+                    "png", new File(saveFolder.getAbsolutePath()+File.separatorChar+"r_"+file.getName()+".png"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
