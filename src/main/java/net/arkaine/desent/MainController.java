@@ -158,31 +158,34 @@ public class MainController implements Initializable {
     private HashMap<String, WritableImage> getWritableRVBImages(BufferedImage image, File file) {
         HashMap<String, WritableImage> wrs = new HashMap<>();
         if (image != null) {
-            wrs.put("B", new WritableImage(image.getWidth() / 2, image.getHeight() / 2));
-            wrs.put("V", new WritableImage(image.getWidth() / 2, image.getHeight() / 2));
-            wrs.put("R", new WritableImage(image.getWidth() / 2, image.getHeight() / 2));
+            wrs.put("B", new WritableImage(image.getWidth(), image.getHeight()));
+            wrs.put("V", new WritableImage(image.getWidth(), image.getHeight()));
+            wrs.put("R", new WritableImage(image.getWidth(), image.getHeight()));
             PixelWriter pwR = wrs.get("R").getPixelWriter();
             PixelWriter pwV = wrs.get("V").getPixelWriter();
             PixelWriter pwB = wrs.get("B").getPixelWriter();
             for (int x = 0; x < image.getWidth() - 1; x += 2) {
                 for (int y = 0; y < image.getHeight() - 1; y += 2) {
-                    pwR.setArgb(x / 2, y / 2, image.getRGB(x, y));
+                    pwR.setArgb(x, y, image.getRGB(x, y));
+                    pwR.setArgb(x+1, y, image.getRGB(x, y));
+                    pwR.setArgb(x, y+1, image.getRGB(x, y));
+                    pwR.setArgb(x+1, y+1, image.getRGB(x, y));
 
                     Color c1 = new Color(image.getRGB(x + 1, y));
-                    int red = c1.getRed();
-                    int green = c1.getGreen();
-                    int blue = c1.getBlue();
-
                     Color c2 = new Color(image.getRGB(x, y + 1));
-                    red = (c1.getRed() + c2.getRed()) / 2;
-                    green = (c1.getGreen() + c2.getGreen()) / 2;
-                    blue = (c1.getBlue() + c2.getBlue()) / 2;
-
+                    int red = (c1.getRed() + c2.getRed()) / 2;
+                    int green = (c1.getGreen() + c2.getGreen()) / 2;
+                    int blue = (c1.getBlue() + c2.getBlue()) / 2;
                     Color finalColor = new Color(red, green, blue);
+                    pwV.setArgb(x, y, finalColor.getRGB());
+                    pwV.setArgb(x+1, y, finalColor.getRGB());
+                    pwV.setArgb(x, y+1, finalColor.getRGB());
+                    pwV.setArgb(x+1, y+1, finalColor.getRGB());
 
-                    pwV.setArgb(x / 2, y / 2, finalColor.getRGB());
-
-                    pwB.setArgb(x / 2, y / 2, image.getRGB(x + 1, y + 1));
+                    pwB.setArgb(x, y, image.getRGB(x + 1, y + 1));
+                    pwB.setArgb(x+1, y, image.getRGB(x + 1, y + 1));
+                    pwB.setArgb(x, y+1, image.getRGB(x + 1, y + 1));
+                    pwB.setArgb(x+1, y+1, image.getRGB(x + 1, y + 1));
                 }
             }
         }
