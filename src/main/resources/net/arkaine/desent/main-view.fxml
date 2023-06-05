@@ -18,4 +18,5 @@
     <Label fx:id="welcomeText" />
     <Button fx:id="saveBtn" onAction="#convertOneFileAction" text="convert one file" />
     <Button fx:id="saveAllBtn" onAction="#convertAllInPathAction" text="convert all file in path" />
+   <CheckBox fx:id="isOneRGB" mnemonicParsing="false" text="One RGB picture"/>
 </VBox>

@@ -37,6 +37,8 @@ public class MainController implements Initializable {
     static String HOME = System.getenv("HOME");
 
     @FXML
+    private javafx.scene.control.CheckBox isOneRGB;
+    @FXML
     private Label welcomeText;
     @FXML
     private ImageView imageViewB;
@@ -110,7 +112,12 @@ public class MainController implements Initializable {
             imageActuelle = loadFitsFirstImage(file);
         }
 
-        HashMap<String, WritableImage> wrs = getWritableRVBImages(imageActuelle, file);
+        HashMap<String, WritableImage> wrs = null;
+        if (isOneRGB.isSelected())
+            wrs = getWritableRVBImagesOneFile(imageActuelle, file);
+        else
+            wrs = getWritableRVBImages(imageActuelle, file);
+
         double[] size = new double[2];
         if (imageActuelle.getHeight() > (scene.getHeight() / 3 - 20))
             size[1] = (scene.getHeight() / 3 - 20);
@@ -172,9 +179,9 @@ public class MainController implements Initializable {
             for (int x = 0; x < image.getWidth() - 1; x += 2) {
                 for (int y = 0; y < image.getHeight() - 1; y += 2) {
                     pwR.setArgb(x, y, image.getRGB(x, y));
-                    pwR.setArgb(x+1, y, image.getRGB(x, y));
-                    pwR.setArgb(x, y+1, image.getRGB(x, y));
-                    pwR.setArgb(x+1, y+1, image.getRGB(x, y));
+                    pwR.setArgb(x + 1, y, image.getRGB(x, y));
+                    pwR.setArgb(x, y + 1, image.getRGB(x, y));
+                    pwR.setArgb(x + 1, y + 1, image.getRGB(x, y));
 
                     Color c1 = new Color(image.getRGB(x + 1, y));
                     Color c2 = new Color(image.getRGB(x, y + 1));
@@ -183,24 +190,63 @@ public class MainController implements Initializable {
                     int blue = (c1.getBlue() + c2.getBlue()) / 2;
                     Color finalColor = new Color(red, green, blue);
                     pwV.setArgb(x, y, finalColor.getRGB());
-                    pwV.setArgb(x+1, y, finalColor.getRGB());
-                    pwV.setArgb(x, y+1, finalColor.getRGB());
-                    pwV.setArgb(x+1, y+1, finalColor.getRGB());
+                    pwV.setArgb(x + 1, y, finalColor.getRGB());
+                    pwV.setArgb(x, y + 1, finalColor.getRGB());
+                    pwV.setArgb(x + 1, y + 1, finalColor.getRGB());
 
                     pwB.setArgb(x, y, image.getRGB(x + 1, y + 1));
-                    pwB.setArgb(x+1, y, image.getRGB(x + 1, y + 1));
-                    pwB.setArgb(x, y+1, image.getRGB(x + 1, y + 1));
-                    pwB.setArgb(x+1, y+1, image.getRGB(x + 1, y + 1));
+                    pwB.setArgb(x + 1, y, image.getRGB(x + 1, y + 1));
+                    pwB.setArgb(x, y + 1, image.getRGB(x + 1, y + 1));
+                    pwB.setArgb(x + 1, y + 1, image.getRGB(x + 1, y + 1));
                 }
             }
         }
         try {
             ImageIO.write(SwingFXUtils.fromFXImage(wrs.get("B"), null),
-                    "png", new File(this.saveFolder.getAbsolutePath() + File.separatorChar + "B"+ File.separatorChar + "B_" + file.getName() + ".png"));
+                    "png", new File(this.saveFolder.getAbsolutePath() + File.separatorChar + "B" + File.separatorChar + "B_" + file.getName() + ".png"));
             ImageIO.write(SwingFXUtils.fromFXImage(wrs.get("G"), null),
-                    "png", new File(this.saveFolder.getAbsolutePath() + File.separatorChar + "G"+ File.separatorChar + "G_" + file.getName() + ".png"));
+                    "png", new File(this.saveFolder.getAbsolutePath() + File.separatorChar + "G" + File.separatorChar + "G_" + file.getName() + ".png"));
             ImageIO.write(SwingFXUtils.fromFXImage(wrs.get("R"), null),
-                    "png", new File(this.saveFolder.getAbsolutePath() + File.separatorChar + "R"+ File.separatorChar + "R_" + file.getName() + ".png"));
+                    "png", new File(this.saveFolder.getAbsolutePath() + File.separatorChar + "R" + File.separatorChar + "R_" + file.getName() + ".png"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return wrs;
+    }
+
+
+    private HashMap<String, WritableImage> getWritableRVBImagesOneFile(BufferedImage image, File file) {
+        HashMap<String, WritableImage> wrs = new HashMap<>();
+        if (image != null) {
+            wrs.put("RGB", new WritableImage(image.getWidth(), image.getHeight()));
+            PixelWriter pwRGB = wrs.get("RGB").getPixelWriter();
+            for (int x = 0; x < image.getWidth() - 1; x += 2) {
+                for (int y = 0; y < image.getHeight() - 1; y += 2) {
+                    Color r = new Color(image.getRGB(x, y));
+                    Color b = new Color(image.getRGB(x + 1, y + 1));
+
+                    Color g1 = new Color(image.getRGB(x + 1, y));
+                    Color g2 = new Color(image.getRGB(x, y + 1));
+
+                    int red = (g1.getRed() + g2.getRed()) / 2;
+                    int green = (g1.getGreen() + g2.getGreen()) / 2;
+                    int blue = (g1.getBlue() + g2.getBlue()) / 2;
+                    Color gColor = new Color(red, green, blue);
+
+                    Color finalColor = new Color(r.getRed(),
+                            gColor.getGreen(),
+                            b.getBlue());
+
+                    pwRGB.setArgb(x, y, finalColor.getRGB());
+                    pwRGB.setArgb(x + 1, y, finalColor.getRGB());
+                    pwRGB.setArgb(x, y + 1, finalColor.getRGB());
+                    pwRGB.setArgb(x + 1, y + 1, finalColor.getRGB());
+                }
+            }
+        }
+        try {
+            ImageIO.write(SwingFXUtils.fromFXImage(wrs.get("RGB"), null),
+                    "png", new File(this.saveFolder.getAbsolutePath() + File.separatorChar + "RGB" + File.separatorChar + "R_" + file.getName() + ".png"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -218,10 +264,12 @@ public class MainController implements Initializable {
         File saveRFolder = new File(file.getParent() + File.separatorChar + "save" + File.separatorChar + "R");
         File saveVFolder = new File(file.getParent() + File.separatorChar + "save" + File.separatorChar + "G");
         File saveBFolder = new File(file.getParent() + File.separatorChar + "save" + File.separatorChar + "B");
+        File saveRGBFolder = new File(file.getParent() + File.separatorChar + "save" + File.separatorChar + "RGB");
 
         saveRFolder.mkdir();
         saveVFolder.mkdir();
         saveBFolder.mkdir();
+        saveRGBFolder.mkdir();
     }
 
     private BufferedImage loadFitsFirstImage(File imagePath) {
