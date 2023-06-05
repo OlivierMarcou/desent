@@ -66,8 +66,9 @@ public class MainController implements Initializable {
                 String fileName = fileTmp.getName().toLowerCase();
                 if (fileTmp.isFile()) {
                     int index = fileName.lastIndexOf(".");
-                    if(index == -1)
-                        continue;;
+                    if (index == -1)
+                        continue;
+                    ;
                     boolean isPng = fileName.substring(index).contains("png");
                     if (fileName.substring(index).contains("fit")
                             || isPng) {
@@ -173,7 +174,6 @@ public class MainController implements Initializable {
         return wr;
     }
 
-
     private HashMap<String, WritableImage> getWritableRVBImages(BufferedImage image, File file) {
         HashMap<String, WritableImage> wrs = new HashMap<>();
         if (image != null) {
@@ -221,7 +221,6 @@ public class MainController implements Initializable {
         return wrs;
     }
 
-
     private HashMap<String, WritableImage> getWritableRVBImagesOneFile(BufferedImage image, File file) {
         HashMap<String, WritableImage> wrs = new HashMap<>();
         if (image != null) {
@@ -240,9 +239,7 @@ public class MainController implements Initializable {
                     int blue = (g1.getBlue() + g2.getBlue()) / 2;
                     Color gColor = new Color(red, green, blue);
 
-                    Color finalColor = new Color(r.getRed(),
-                            gColor.getGreen(),
-                            b.getBlue());
+                    Color finalColor = new Color(r.getRed(), gColor.getGreen(), b.getBlue());
 
                     pwRGB.setArgb(x, y, finalColor.getRGB());
                     pwRGB.setArgb(x + 1, y, finalColor.getRGB());
@@ -261,22 +258,31 @@ public class MainController implements Initializable {
     }
 
     private void createSaveFolders(File file) {
-        this.saveFolder = new File(file.getAbsolutePath() + File.separatorChar + "save");
+        String filePath;
+        if (file.isFile()) {
+            filePath = file.getParent() + File.separatorChar + "save";
+        } else {
+            filePath = file.getAbsolutePath() + File.separatorChar + "save";
+        }
+        this.saveFolder = new File(filePath);
         try {
             FileDeleteStrategy.FORCE.delete(this.saveFolder);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         this.saveFolder.mkdir();
-        File saveRFolder = new File(file.getAbsolutePath() + File.separatorChar + "save" + File.separatorChar + "R");
-        File saveVFolder = new File(file.getAbsolutePath() + File.separatorChar + "save" + File.separatorChar + "G");
-        File saveBFolder = new File(file.getAbsolutePath() + File.separatorChar + "save" + File.separatorChar + "B");
-        File saveRGBFolder = new File(file.getParent() + File.separatorChar + "save" + File.separatorChar + "RGB");
 
-        saveRFolder.mkdir();
-        saveVFolder.mkdir();
-        saveBFolder.mkdir();
-        saveRGBFolder.mkdir();
+        if (isOneRGB.isSelected()) {
+            File saveRGBFolder = new File(filePath + File.separatorChar + "RGB");
+            saveRGBFolder.mkdir();
+        } else {
+            File saveRFolder = new File(filePath + File.separatorChar + "R");
+            File saveVFolder = new File(filePath + File.separatorChar + "G");
+            File saveBFolder = new File(filePath + File.separatorChar + "B");
+            saveRFolder.mkdir();
+            saveVFolder.mkdir();
+            saveBFolder.mkdir();
+        }
     }
 
     private BufferedImage loadFitsFirstImage(File imagePath) {
