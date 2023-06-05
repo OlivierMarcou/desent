@@ -12,6 +12,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import nom.tam.fits.BasicHDU;
 import nom.tam.fits.Fits;
@@ -25,9 +26,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
@@ -60,20 +59,20 @@ public class MainController implements Initializable {
 
     @FXML
     private void convertAllInPathAction(ActionEvent event) {
-        File file = fileChooser();
-        if (file != null) {
-            createSaveFolders(file);
-            File folder = new File(file.getParent());
-            List<File> imageFiles = new ArrayList<>();
+        File folder = folderChooser();
+        if (folder != null) {
+            createSaveFolders(folder);
             for (File fileTmp : folder.listFiles()) {
                 String fileName = fileTmp.getName().toLowerCase();
                 if (fileTmp.isFile()) {
-                    boolean isPng = fileName.substring(fileName.lastIndexOf(".")).contains("png");
-                    if (fileName.substring(fileName.lastIndexOf(".")).contains("fit")
+                    int index = fileName.lastIndexOf(".");
+                    if(index == -1)
+                        continue;;
+                    boolean isPng = fileName.substring(index).contains("png");
+                    if (fileName.substring(index).contains("fit")
                             || isPng) {
                         readAndWriteImagesRVB(fileTmp, isPng);
                     }
-
                 }
             }
         }
@@ -149,6 +148,14 @@ public class MainController implements Initializable {
                 new FileChooser.ExtensionFilter("FITS files (*.png)", "*.png");
         fileChooser.getExtensionFilters().add(extFilter);
         File file = fileChooser.showOpenDialog(null);
+        return file;
+    }
+
+    private File folderChooser() {
+        this.scene = imageViewB.getScene();
+        DirectoryChooser fileChooser = new DirectoryChooser();
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        File file = fileChooser.showDialog(null);
         return file;
     }
 
@@ -254,16 +261,16 @@ public class MainController implements Initializable {
     }
 
     private void createSaveFolders(File file) {
-        this.saveFolder = new File(file.getParent() + File.separatorChar + "save");
+        this.saveFolder = new File(file.getAbsolutePath() + File.separatorChar + "save");
         try {
             FileDeleteStrategy.FORCE.delete(this.saveFolder);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         this.saveFolder.mkdir();
-        File saveRFolder = new File(file.getParent() + File.separatorChar + "save" + File.separatorChar + "R");
-        File saveVFolder = new File(file.getParent() + File.separatorChar + "save" + File.separatorChar + "G");
-        File saveBFolder = new File(file.getParent() + File.separatorChar + "save" + File.separatorChar + "B");
+        File saveRFolder = new File(file.getAbsolutePath() + File.separatorChar + "save" + File.separatorChar + "R");
+        File saveVFolder = new File(file.getAbsolutePath() + File.separatorChar + "save" + File.separatorChar + "G");
+        File saveBFolder = new File(file.getAbsolutePath() + File.separatorChar + "save" + File.separatorChar + "B");
         File saveRGBFolder = new File(file.getParent() + File.separatorChar + "save" + File.separatorChar + "RGB");
 
         saveRFolder.mkdir();
