@@ -10,14 +10,13 @@
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
    <Label text="Label" />
-   <TextField fx:id="pathTxt" promptText="HelloController.HOME" />
+   <TextField fx:id="pathTxt" promptText="MainController.HOME" />
     <HBox>
         <ImageView fx:id="imageViewB" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
         <ImageView fx:id="imageViewV" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
         <ImageView fx:id="imageViewR" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
     </HBox>
     <Label fx:id="welcomeText" />
-    <Button fx:id="desentBtn" onAction="#onHelloButtonClick" text="Desent" />
-    <Button fx:id="loadBtn" onAction="#loadAction" text="load" />
-    <Button fx:id="saveBtn" onAction="#saveAction" text="save" />
+    <Button fx:id="saveBtn" onAction="#convertOneFileAction" text="convert one file" />
+    <Button fx:id="saveAllBtn" onAction="#convertAllInPathAction" text="convert all file in path" />
 </VBox>

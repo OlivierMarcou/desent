@@ -9,7 +9,6 @@ import java.awt.image.*;
 
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -22,8 +21,7 @@ import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.ResourceBundle;
+import java.util.*;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -54,10 +52,10 @@ public class MainController implements Initializable {
     private TextField pathTxt;
 
     @FXML
-    private Button saveBtn;
+    private Button saveAllBtn;
 
     @FXML
-    private Button loadBtn;
+    private Button saveBtn;
     @FXML
     private ImageView imageViewB;
     @FXML
@@ -86,27 +84,58 @@ public class MainController implements Initializable {
         pathTxt.setText(HOME);
     }
 
-
     @FXML
-    private void saveAction(ActionEvent event) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
-        FileChooser.ExtensionFilter extFilter =
-                new FileChooser.ExtensionFilter("png files (*.png)", "*.png");
-        fileChooser.getExtensionFilters().add(extFilter);
-        File file = fileChooser.showSaveDialog(null);
+    private void convertAllInPathAction(ActionEvent event){
+        File file = fileChooser();
         if(file != null){
-            try {
-                ImageIO.write(imageB, "png", file);
-            } catch (IOException e) {
-                Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, e);
-//                throw new RuntimeException(e);
+            File folder = new File(file.getParent());
+            List<File> imageFiles = new ArrayList<>();
+            for (File fileTmp: folder.listFiles()){
+                if(fileTmp.isFile()
+                        && (fileTmp.getName().toLowerCase().lastIndexOf(".fit") != -1 ||
+                        fileTmp.getName().toLowerCase().lastIndexOf(".fits") != -1 )){
+                    readAndWriteImagesRVB(fileTmp);
+                    
+                } 
             }
         }
     }
-
     @FXML
-    private void loadAction(ActionEvent event) {
+    private void convertOneFileAction(ActionEvent event) {
+        File file = fileChooser();
+
+        if(file != null){
+            readAndWriteImagesRVB(file);
+        }
+    }
+
+    private void readAndWriteImagesRVB(File file) {
+        if(!file.exists())
+            return;
+
+        imageActuelle = loadFitsFirstImage(file);
+        HashMap<String, WritableImage> wrs = getWritableRVBImages(imageActuelle, file);
+        double[] size = new double[2];
+        if(imageActuelle.getHeight() > (scene.getHeight()/3-20))
+            size[1] = (scene.getHeight()/3-20);
+        else
+            size[1] = imageActuelle.getHeight();
+        if(imageActuelle.getWidth() > (scene.getWidth()/3-20))
+            size[0] = (scene.getWidth()/3-20);
+        else
+            size[0] = imageActuelle.getWidth();
+        imageViewB.setFitHeight(size[1]);
+        imageViewB.setFitWidth(size[0]);
+        imageViewB.setImage(wrs.get("B"));
+        imageViewR.setFitHeight(size[1]);
+        imageViewR.setFitWidth(size[0]);
+        imageViewR.setImage(wrs.get("V"));
+        imageViewV.setFitHeight(size[1]);
+        imageViewV.setFitWidth(size[0]);
+        imageViewV.setImage(wrs.get("R"));
+    }
+
+    private File fileChooser() {
         this.scene = pathTxt.getScene();
         FileChooser fileChooser = new FileChooser();
         fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
@@ -114,31 +143,7 @@ public class MainController implements Initializable {
                 new FileChooser.ExtensionFilter("FITS files (*.fit)", "*.fit");
         fileChooser.getExtensionFilters().add(extFilter);
         File file = fileChooser.showOpenDialog(null);
-
-        if(file != null){
-            imageActuelle = loadFitsFirstImage(file);
-            Canvas canvas = new Canvas();
-
-            HashMap<String, WritableImage> wrs = getWritableRVBImages(imageActuelle, file.getName());
-            double[] size = new double[2];
-            if(imageActuelle.getHeight() > (scene.getHeight()/3-20))
-                size[1] = (scene.getHeight()/3-20);
-            else
-                size[1] = imageActuelle.getHeight();
-            if(imageActuelle.getWidth() > (scene.getWidth()/3-20))
-                size[0] = (scene.getWidth()/3-20);
-            else
-                size[0] = imageActuelle.getWidth();
-            imageViewB.setFitHeight(size[1]);
-            imageViewB.setFitWidth(size[0]);
-            imageViewB.setImage(wrs.get("B"));
-            imageViewR.setFitHeight(size[1]);
-            imageViewR.setFitWidth(size[0]);
-            imageViewR.setImage(wrs.get("V"));
-            imageViewV.setFitHeight(size[1]);
-            imageViewV.setFitWidth(size[0]);
-            imageViewV.setImage(wrs.get("R"));
-        }
+        return file;
     }
 
     private WritableImage getWritableImage(BufferedImage image) {
@@ -156,7 +161,7 @@ public class MainController implements Initializable {
     }
 
 
-    private HashMap<String, WritableImage> getWritableRVBImages(BufferedImage image, String name) {
+    private HashMap<String, WritableImage> getWritableRVBImages(BufferedImage image, File file) {
         HashMap<String, WritableImage> wrs = new HashMap<>();
         if (image != null) {
             wrs.put("B", new WritableImage(image.getWidth()/2, image.getHeight()/2));
@@ -174,12 +179,17 @@ public class MainController implements Initializable {
             }
         }
         try {
+            File saveFolder = new File(file.getParent() +File.separatorChar+ "save");
+            if(!saveFolder.exists())
+            {
+                saveFolder.mkdir();
+            }
             ImageIO.write(SwingFXUtils.fromFXImage(wrs.get("B"), null),
-                    "png", new File("b_"+name+".png"));
-            ImageIO.write(SwingFXUtils.fromFXImage(wrs.get("G"), null),
-                    "png", new File("g_"+name+".png"));
+                    "png", new File(saveFolder.getAbsolutePath()+File.separatorChar+"b_"+file.getName()+".png"));
+            ImageIO.write(SwingFXUtils.fromFXImage(wrs.get("V"), null),
+                    "png", new File(saveFolder.getAbsolutePath()+File.separatorChar+"g_"+file.getName()+".png"));
             ImageIO.write(SwingFXUtils.fromFXImage(wrs.get("R"), null),
-                    "png", new File("r_"+name+"png"));
+                    "png", new File(saveFolder.getAbsolutePath()+File.separatorChar+"r_"+file.getName()+"png"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
