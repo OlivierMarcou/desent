@@ -9,12 +9,11 @@
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
-   <Label text="Label" />
-   <TextField fx:id="pathTxt" promptText="MainController.HOME" />
+   <Label text="R V B" />
     <HBox>
-        <ImageView fx:id="imageViewB" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
-        <ImageView fx:id="imageViewV" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
         <ImageView fx:id="imageViewR" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+        <ImageView fx:id="imageViewV" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+        <ImageView fx:id="imageViewB" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
     </HBox>
     <Label fx:id="welcomeText" />
     <Button fx:id="saveBtn" onAction="#convertOneFileAction" text="convert one file" />

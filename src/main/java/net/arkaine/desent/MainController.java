@@ -39,23 +39,8 @@ public class MainController implements Initializable {
     final static Logger logger = Logger.getLogger(String.valueOf(MainController.class));
     static String HOME = System.getenv("HOME");
 
-    private File currentImage;
-
     @FXML
     private Label welcomeText;
-
-
-    @FXML
-    private Button desentBtn;
-
-    @FXML
-    private TextField pathTxt;
-
-    @FXML
-    private Button saveAllBtn;
-
-    @FXML
-    private Button saveBtn;
     @FXML
     private ImageView imageViewB;
     @FXML
@@ -64,24 +49,12 @@ public class MainController implements Initializable {
     private ImageView imageViewR;
 
     private BufferedImage imageActuelle;
-    private BufferedImage imageR;
-    private BufferedImage imageV;
-    private BufferedImage imageB;
 
     private Scene scene;
 
-    @FXML
-    protected void onHelloButtonClick() {
-        this.currentImage = new File(pathTxt.getText());
-
-        if(currentImage.isDirectory()){
-
-        }
-    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        pathTxt.setText(HOME);
     }
 
     @FXML
@@ -91,11 +64,14 @@ public class MainController implements Initializable {
             File folder = new File(file.getParent());
             List<File> imageFiles = new ArrayList<>();
             for (File fileTmp: folder.listFiles()){
-                if(fileTmp.isFile()
-                        && (fileTmp.getName().toLowerCase().lastIndexOf(".fit") != -1 ||
-                        fileTmp.getName().toLowerCase().lastIndexOf(".fits") != -1 )){
-                    readAndWriteImagesRVB(fileTmp);
-                    
+                String fileName = fileTmp.getName().toLowerCase();
+                if(fileTmp.isFile()) {
+                    boolean isPng = fileName.substring(fileName.lastIndexOf(".")).contains("png");
+                    if (fileName.substring(fileName.lastIndexOf(".")).contains("fit")
+                            || isPng) {
+                        readAndWriteImagesRVB(fileTmp, isPng);
+                    }
+
                 } 
             }
         }
@@ -105,15 +81,33 @@ public class MainController implements Initializable {
         File file = fileChooser();
 
         if(file != null){
-            readAndWriteImagesRVB(file);
+
+            if(file.isFile()) {
+                String fileName = file.getName().toLowerCase();
+                boolean isPng = fileName.substring(fileName.lastIndexOf(".")).contains("png");
+                if (fileName.substring(fileName.lastIndexOf(".")).contains("fit")
+                        || isPng) {
+                    readAndWriteImagesRVB(file, isPng);
+                }
+
+            }
         }
     }
 
-    private void readAndWriteImagesRVB(File file) {
+    private void readAndWriteImagesRVB(File file, boolean isPng) {
         if(!file.exists())
             return;
 
-        imageActuelle = loadFitsFirstImage(file);
+        if(isPng){
+            try {
+                imageActuelle = ImageIO.read(file);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        else{
+            imageActuelle = loadFitsFirstImage(file);}
+
         HashMap<String, WritableImage> wrs = getWritableRVBImages(imageActuelle, file);
         double[] size = new double[2];
         if(imageActuelle.getHeight() > (scene.getHeight()/3-20))
@@ -136,11 +130,14 @@ public class MainController implements Initializable {
     }
 
     private File fileChooser() {
-        this.scene = pathTxt.getScene();
+        this.scene = imageViewB.getScene();
         FileChooser fileChooser = new FileChooser();
         fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
         FileChooser.ExtensionFilter extFilter =
                 new FileChooser.ExtensionFilter("FITS files (*.fit)", "*.fit");
+        fileChooser.getExtensionFilters().add(extFilter);
+        extFilter =
+                new FileChooser.ExtensionFilter("FITS files (*.png)", "*.png");
         fileChooser.getExtensionFilters().add(extFilter);
         File file = fileChooser.showOpenDialog(null);
         return file;

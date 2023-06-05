@@ -17,6 +17,7 @@ public class DesentApplication extends Application {
         Scene scene = new Scene(fxmlLoader.load(), 800, 600);
         stage.setTitle("DeSent raw png");
         stage.setScene(scene);
+        stage.setMaximized(true);
         stage.show();
     }
 
