@@ -173,7 +173,7 @@ public class MainController implements Initializable {
             for (int x = 0; x < image.getWidth()-1; x+=2) {
                 for (int y = 0; y < image.getHeight()-1; y+=2) {
                     pwR.setArgb(x/2, y/2, image.getRGB(x+1, y+1));
-                    pwV.setArgb(x/2, y/2, image.getRGB(x+1, y));
+                    pwV.setArgb(x/2, y/2, (image.getRGB(x+1, y) + image.getRGB(x, y+1))/2);
                     pwB.setArgb(x/2, y/2, image.getRGB(x, y));
                 }
             }
