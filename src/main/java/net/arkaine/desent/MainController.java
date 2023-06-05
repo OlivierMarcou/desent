@@ -5,6 +5,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 
 import javafx.embed.swing.SwingFXUtils;
+
+import java.awt.*;
 import java.awt.image.*;
 
 import javafx.fxml.Initializable;
@@ -23,6 +25,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -170,7 +173,16 @@ public class MainController implements Initializable {
             for (int x = 0; x < image.getWidth()-1; x+=2) {
                 for (int y = 0; y < image.getHeight()-1; y+=2) {
                     pwR.setArgb(x/2, y/2, image.getRGB(x+1, y+1));
-                    pwV.setArgb(x/2, y/2, (image.getRGB(x+1, y) + image.getRGB(x, y+1))/2);
+                    Color c1 = new Color(image.getRGB(x+1, y));
+                    int red = c1.getRed();
+                    int green = c1.getGreen();
+                    int blue = c1.getBlue();
+                    Color c2 = new Color(image.getRGB(x, y+1));
+                    red = (c1.getRed() +  c2.getRed()) /2;
+                    green =(c1.getGreen() +  c2.getGreen()) /2;
+                    blue = (c1.getBlue() +  c2.getBlue()) /2;
+                    Color finalColor = new Color(red, green,blue);
+                    pwV.setArgb(x/2, y/2, finalColor.getRGB());
                     pwB.setArgb(x/2, y/2, image.getRGB(x, y));
                 }
             }
