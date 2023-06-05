@@ -17,6 +17,7 @@ import nom.tam.fits.BasicHDU;
 import nom.tam.fits.Fits;
 import nom.tam.fits.FitsException;
 import nom.tam.fits.ImageHDU;
+import org.apache.commons.io.FileDeleteStrategy;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -48,6 +49,8 @@ public class MainController implements Initializable {
 
     private Scene scene;
 
+    private File saveFolder;
+
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -57,6 +60,7 @@ public class MainController implements Initializable {
     private void convertAllInPathAction(ActionEvent event) {
         File file = fileChooser();
         if (file != null) {
+            createSaveFolders(file);
             File folder = new File(file.getParent());
             List<File> imageFiles = new ArrayList<>();
             for (File fileTmp : folder.listFiles()) {
@@ -79,6 +83,7 @@ public class MainController implements Initializable {
 
         if (file != null) {
 
+            createSaveFolders(file);
             if (file.isFile()) {
                 String fileName = file.getName().toLowerCase();
                 boolean isPng = fileName.substring(fileName.lastIndexOf(".")).contains("png");
@@ -120,7 +125,7 @@ public class MainController implements Initializable {
         imageViewB.setImage(wrs.get("B"));
         imageViewR.setFitHeight(size[1]);
         imageViewR.setFitWidth(size[0]);
-        imageViewR.setImage(wrs.get("V"));
+        imageViewR.setImage(wrs.get("G"));
         imageViewV.setFitHeight(size[1]);
         imageViewV.setFitWidth(size[0]);
         imageViewV.setImage(wrs.get("R"));
@@ -159,10 +164,10 @@ public class MainController implements Initializable {
         HashMap<String, WritableImage> wrs = new HashMap<>();
         if (image != null) {
             wrs.put("B", new WritableImage(image.getWidth(), image.getHeight()));
-            wrs.put("V", new WritableImage(image.getWidth(), image.getHeight()));
+            wrs.put("G", new WritableImage(image.getWidth(), image.getHeight()));
             wrs.put("R", new WritableImage(image.getWidth(), image.getHeight()));
             PixelWriter pwR = wrs.get("R").getPixelWriter();
-            PixelWriter pwV = wrs.get("V").getPixelWriter();
+            PixelWriter pwV = wrs.get("G").getPixelWriter();
             PixelWriter pwB = wrs.get("B").getPixelWriter();
             for (int x = 0; x < image.getWidth() - 1; x += 2) {
                 for (int y = 0; y < image.getHeight() - 1; y += 2) {
@@ -190,20 +195,33 @@ public class MainController implements Initializable {
             }
         }
         try {
-            File saveFolder = new File(file.getParent() + File.separatorChar + "save");
-            if (!saveFolder.exists()) {
-                saveFolder.mkdir();
-            }
             ImageIO.write(SwingFXUtils.fromFXImage(wrs.get("B"), null),
-                    "png", new File(saveFolder.getAbsolutePath() + File.separatorChar + "b_" + file.getName() + ".png"));
-            ImageIO.write(SwingFXUtils.fromFXImage(wrs.get("V"), null),
-                    "png", new File(saveFolder.getAbsolutePath() + File.separatorChar + "g_" + file.getName() + ".png"));
+                    "png", new File(this.saveFolder.getAbsolutePath() + File.separatorChar + "B"+ File.separatorChar + "B_" + file.getName() + ".png"));
+            ImageIO.write(SwingFXUtils.fromFXImage(wrs.get("G"), null),
+                    "png", new File(this.saveFolder.getAbsolutePath() + File.separatorChar + "G"+ File.separatorChar + "G_" + file.getName() + ".png"));
             ImageIO.write(SwingFXUtils.fromFXImage(wrs.get("R"), null),
-                    "png", new File(saveFolder.getAbsolutePath() + File.separatorChar + "r_" + file.getName() + ".png"));
+                    "png", new File(this.saveFolder.getAbsolutePath() + File.separatorChar + "R"+ File.separatorChar + "R_" + file.getName() + ".png"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         return wrs;
+    }
+
+    private void createSaveFolders(File file) {
+        this.saveFolder = new File(file.getParent() + File.separatorChar + "save");
+        try {
+            FileDeleteStrategy.FORCE.delete(this.saveFolder);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        this.saveFolder.mkdir();
+        File saveRFolder = new File(file.getParent() + File.separatorChar + "save" + File.separatorChar + "R");
+        File saveVFolder = new File(file.getParent() + File.separatorChar + "save" + File.separatorChar + "G");
+        File saveBFolder = new File(file.getParent() + File.separatorChar + "save" + File.separatorChar + "B");
+
+        saveRFolder.mkdir();
+        saveVFolder.mkdir();
+        saveBFolder.mkdir();
     }
 
     private BufferedImage loadFitsFirstImage(File imagePath) {
