@@ -10,6 +10,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.stage.DirectoryChooser;
@@ -21,8 +22,15 @@ import nom.tam.fits.ImageHDU;
 import org.apache.commons.io.FileDeleteStrategy;
 
 import javax.imageio.ImageIO;
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage;
 import java.awt.*;
+import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.ComponentColorModel;
+import java.awt.image.DataBuffer;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -104,11 +112,25 @@ public class MainController implements Initializable {
 
         if (isPng) {
             try {
+                PlanarImage image =  (PlanarImage) JAI.create("fileload", file.getAbsolutePath());
+                int[] colors = new int[3];
+image.getData().getPixel(0,0,colors);
+                /*
+
+//                PlanarImage image = (PlanarImage)JAI.create("fileload", _filename);
+                BufferedImage image = jai.create("fileload", file);
                 imageActuelle = ImageIO.read(file);
+                */
+                imageActuelle = ImageIO.read(file);
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ImageIO.write(imageActuelle,  "png", baos);
+                byte[] bytes = baos.toByteArray();
+                System.out.println("hop");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        } else {
+        } else { ,      
             imageActuelle = loadFitsFirstImage(file);
         }
 
@@ -219,6 +241,35 @@ public class MainController implements Initializable {
             throw new RuntimeException(e);
         }
         return wrs;
+    }
+
+    private BufferedImage create48BitRGBImage(int width, int height) {
+        int precision = 16; // You could in theory use less than the full 16 bits/component (ie. 12 bits/component)
+        ColorSpace colorSpace = ColorSpace.getInstance(ColorSpace.CS_sRGB);
+        ColorModel colorModel = new ComponentColorModel(colorSpace, new int[] {precision, precision, precision}, false, false, Transparency.OPAQUE, DataBuffer.TYPE_USHORT);
+        return new BufferedImage(colorModel, colorModel.createCompatibleWritableRaster(width, height), colorModel.isAlphaPremultiplied(), null);
+    }
+    private javafx.scene.image.Image getARGB(javafx.scene.image.Image inputImage) {
+        int W = (int) inputImage.getWidth();
+        int H = (int) inputImage.getHeight();
+        WritableImage outputImage = new WritableImage(W, H);
+        PixelReader reader = inputImage.getPixelReader();
+        PixelWriter writer = outputImage.getPixelWriter();
+        for (int y = 0; y < H; y++) {
+            for (int x = 0; x < W; x++) {
+                int argb = reader.getArgb(x, y);
+                int a = (argb >> 24) & 0xFF;
+                int r = (argb >> 16) & 0xFF;
+                int g = (argb >>  8) & 0xFF;
+                int b =  argb        & 0xFF;
+
+
+                argb = (a << 24) | (r << 16) | (g << 8) | b;
+                writer.setArgb(x, y, argb);
+            }
+        }
+
+        return outputImage;
     }
 
     private HashMap<String, WritableImage> getWritableRVBImagesOneFile(BufferedImage image, File file) {

@@ -6,6 +6,7 @@ module net.arkaine.desent {
     requires nom.tam.fits;
     requires javafx.swing;
     requires org.apache.commons.io;
+    requires jai.core;
 
 
     opens net.arkaine.desent to javafx.fxml;
