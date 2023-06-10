@@ -132,10 +132,10 @@ public class MainController implements Initializable {
         imageViewB.setImage(wrs.get("B"));
         imageViewR.setFitHeight(size[1]);
         imageViewR.setFitWidth(size[0]);
-        imageViewR.setImage(wrs.get("G"));
+        imageViewR.setImage(wrs.get("R"));
         imageViewV.setFitHeight(size[1]);
         imageViewV.setFitWidth(size[0]);
-        imageViewV.setImage(wrs.get("R"));
+        imageViewV.setImage(wrs.get("G"));
     }
 
     private File fileChooser() {
