@@ -52,11 +52,6 @@
             <version>1.16.1</version>
         </dependency>
         <dependency>
-            <groupId>sdss</groupId>
-            <artifactId>ivoa-fits</artifactId>
-            <version>0.3.1</version>
-        </dependency>
-        <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
             <version>19.0.2.1</version>
@@ -99,6 +94,40 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <finalName>Desent</finalName>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <addMavenDescriptor>true</addMavenDescriptor>
+                        <manifestEntries>
+                            <Application-Name>Desent</Application-Name>
+                            <Permissions>all-permissions</Permissions>
+                            <Codebase>*</Codebase><addClasspath>true</addClasspath>
+                            <Caller-Allowable-Codebase> *.arkaine.net *.aikane.fr *</Caller-Allowable-Codebase>
+                        </manifestEntries>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                            <mainClass>net.arkaine.desent.DesentApplication</mainClass>
+                            <addClasspath>true</addClasspath>
+                            <addExtensions />
+                            <classpathPrefix />
+                        </manifest>
+                    </archive>
+                </configuration>
             </plugin>
         </plugins>
     </build>
